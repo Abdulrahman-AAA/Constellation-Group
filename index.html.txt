@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Constellation Automotive Group — Car Starlight Headliners</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syncopate:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --gold: #C9A84C; --gold-light: #E8CF8A; --deep: #05050F;
+    --deep2: #0A0A1A; --deep3: #0F0F22; --panel: #0D0D1F;
+    --muted: rgba(255,255,255,0.45); --border: rgba(201,168,76,0.2);
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--deep); color: #fff; font-family: 'DM Sans', sans-serif; font-weight: 300; line-height: 1.7; overflow-x: hidden; }
+  #stars-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 1.5rem 4rem; background: linear-gradient(to bottom, rgba(5,5,15,0.95) 0%, transparent 100%); backdrop-filter: blur(8px); }
+  .nav-logo { font-family: 'Syncopate', sans-serif; font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-light); }
+  .nav-logo span { display: block; font-size: 0.55rem; color: var(--muted); letter-spacing: 0.4em; margin-top: 2px; }
+  .nav-links { display: flex; gap: 2rem; align-items: center; }
+  .nav-links a { font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.3s; display: flex; align-items: center; gap: 0.35rem; }
+  .nav-links a:hover { color: var(--gold-light); }
+  .nav-cta { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--deep); background: var(--gold); padding: 0.6rem 1.5rem; border: none; cursor: pointer; text-decoration: none; transition: background 0.3s; font-family: 'DM Sans', sans-serif; font-weight: 500; }
+  .nav-cta:hover { background: var(--gold-light); }
+  .nav-right { display: flex; align-items: center; gap: 1rem; }
+  .nav-ig-btn { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: 1px solid var(--border); color: var(--muted); text-decoration: none; transition: border-color 0.3s, color 0.3s; flex-shrink: 0; }
+  .nav-ig-btn:hover { border-color: var(--gold); color: var(--gold-light); }
+
+  #hero { position: relative; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 8rem 2rem 4rem; z-index: 1; }
+  .hero-eyebrow { font-size: 0.65rem; letter-spacing: 0.5em; text-transform: uppercase; color: var(--gold); margin-bottom: 2rem; opacity: 0; animation: fadeUp 1s ease 0.3s forwards; }
+  .hero-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(3.5rem, 8vw, 7rem); font-weight: 300; line-height: 1.05; margin-bottom: 2rem; opacity: 0; animation: fadeUp 1s ease 0.5s forwards; }
+  .hero-title em { font-style: italic; color: var(--gold-light); }
+  .hero-sub { font-size: 1rem; color: var(--muted); max-width: 500px; margin: 0 auto 3rem; opacity: 0; animation: fadeUp 1s ease 0.7s forwards; }
+  .hero-btns { display: flex; gap: 1rem; opacity: 0; animation: fadeUp 1s ease 0.9s forwards; flex-wrap: wrap; justify-content: center; }
+  .hero-scroll { position: absolute; bottom: 3rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.5rem; opacity: 0; animation: fadeUp 1s ease 1.2s forwards; }
+  .hero-scroll span { font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted); }
+  .scroll-line { width: 1px; height: 50px; background: linear-gradient(to bottom, var(--gold), transparent); animation: scrollPulse 2s ease-in-out infinite; }
+
+  section { position: relative; z-index: 1; }
+  .section-inner { max-width: 1200px; margin: 0 auto; padding: 6rem 4rem; }
+  .section-label { font-size: 0.6rem; letter-spacing: 0.5em; text-transform: uppercase; color: var(--gold); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 1rem; }
+  .section-label::after { content: ''; flex: 0 0 40px; height: 1px; background: var(--gold); opacity: 0.4; }
+  .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 300; line-height: 1.1; margin-bottom: 1.5rem; }
+  .section-title em { font-style: italic; color: var(--gold-light); }
+  .btn-primary { padding: 1rem 2.5rem; background: var(--gold); color: var(--deep); font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 500; font-family: 'DM Sans', sans-serif; border: none; cursor: pointer; text-decoration: none; transition: background 0.3s, transform 0.2s; display: inline-block; }
+  .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
+  .btn-outline { padding: 1rem 2.5rem; background: transparent; color: var(--gold-light); font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 400; font-family: 'DM Sans', sans-serif; border: 1px solid var(--border); cursor: pointer; text-decoration: none; transition: border-color 0.3s, color 0.3s; display: inline-block; }
+  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+  .gold-divider { width: 60px; height: 1px; background: var(--gold); opacity: 0.4; margin: 2rem 0; }
+
+  #features { border-top: 1px solid var(--border); }
+  .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 4rem; }
+  .feature-card { background: var(--panel); padding: 2.5rem 2rem; border: 1px solid var(--border); transition: border-color 0.3s, background 0.3s; }
+  .feature-card:hover { border-color: var(--gold); background: rgba(201,168,76,0.04); }
+  .feature-icon { width: 48px; height: 48px; margin-bottom: 1.5rem; }
+  .feature-title { font-family: 'Syncopate', sans-serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold-light); margin-bottom: 0.75rem; }
+  .feature-desc { font-size: 0.9rem; color: var(--muted); line-height: 1.7; }
+
+  #our-work { border-top: 1px solid var(--border); }
+  .work-top { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 3rem; }
+  .work-top-left { max-width: 560px; }
+  .work-intro { font-size: 1rem; color: var(--muted); margin-top: 0.75rem; }
+  .ig-pill { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--gold); font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; text-decoration: none; border: 1px solid var(--border); padding: 0.6rem 1.2rem; transition: border-color 0.3s, color 0.3s; white-space: nowrap; }
+  .ig-pill:hover { border-color: var(--gold); color: var(--gold-light); }
+  .ig-pill svg { width: 15px; height: 15px; flex-shrink: 0; }
+  .work-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+  .work-item { position: relative; aspect-ratio: 1; overflow: hidden; background: var(--panel); border: 1px solid var(--border); cursor: pointer; }
+  .work-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.5s ease; }
+  .work-item:hover img { transform: scale(1.06); }
+  .work-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem; color: rgba(255,255,255,0.15); font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; }
+  .work-overlay { position: absolute; inset: 0; background: rgba(5,5,15,0.75); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; padding: 1.5rem; text-align: center; }
+  .work-item:hover .work-overlay { opacity: 1; }
+  .work-overlay-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 300; color: var(--gold-light); margin-bottom: 0.3rem; }
+  .work-overlay-sub { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+  .work-footer { margin-top: 3rem; text-align: center; }
+
+  #lightbox { display: none; position: fixed; inset: 0; z-index: 999; background: rgba(5,5,15,0.96); align-items: center; justify-content: center; flex-direction: column; gap: 1rem; }
+  #lightbox.open { display: flex; }
+  #lightbox img { max-width: 88vw; max-height: 80vh; object-fit: contain; border: 1px solid var(--border); }
+  #lb-caption { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; color: var(--gold-light); font-weight: 300; }
+  #lightbox-close { position: absolute; top: 2rem; right: 2rem; background: none; border: 1px solid var(--border); color: var(--muted); width: 44px; height: 44px; font-size: 1rem; cursor: pointer; transition: border-color 0.2s, color 0.2s; display: flex; align-items: center; justify-content: center; }
+  #lightbox-close:hover { border-color: var(--gold); color: var(--gold); }
+
+  #pricing { border-top: 1px solid var(--border); }
+  .pricing-intro { font-size: 1rem; color: var(--muted); max-width: 550px; margin-bottom: 4rem; }
+  .packages-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 3rem; }
+  .package-card { background: var(--panel); border: 1px solid var(--border); padding: 2.5rem 2rem; position: relative; transition: border-color 0.3s; display: flex; flex-direction: column; }
+  .package-card:hover { border-color: rgba(201,168,76,0.5); }
+  .package-card.featured { border-color: var(--gold); }
+  .featured-badge { position: absolute; top: -1px; right: 2rem; background: var(--gold); color: var(--deep); font-size: 0.55rem; letter-spacing: 0.2em; text-transform: uppercase; font-weight: 500; padding: 0.3rem 0.8rem; }
+  .pkg-stars { font-family: 'Cormorant Garamond', serif; font-size: 3.5rem; font-weight: 300; color: var(--gold-light); line-height: 1; margin-bottom: 0.25rem; }
+  .pkg-label { font-size: 0.65rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--muted); margin-bottom: 2rem; }
+  .pkg-price { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 300; margin-bottom: 0.25rem; }
+  .pkg-per { font-size: 0.75rem; color: var(--muted); margin-bottom: 2rem; }
+  .pkg-features { list-style: none; margin-bottom: 2rem; flex: 1; }
+  .pkg-features li { font-size: 0.85rem; color: var(--muted); padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; gap: 0.75rem; }
+  .pkg-features li::before { content: '✦'; color: var(--gold); font-size: 0.5rem; flex-shrink: 0; }
+  .addons-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 4rem; }
+  .addon-card { background: var(--deep3); border: 1px solid var(--border); padding: 2rem; display: flex; gap: 1.5rem; align-items: flex-start; transition: border-color 0.3s; }
+  .addon-card:hover { border-color: rgba(201,168,76,0.5); }
+  .addon-icon-wrap { width: 48px; height: 48px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .addon-title { font-family: 'Syncopate', sans-serif; font-size: 0.6rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold-light); margin-bottom: 0.5rem; }
+  .addon-price { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 300; line-height: 1; margin-bottom: 0.5rem; }
+  .addon-desc { font-size: 0.85rem; color: var(--muted); }
+
+  #calculator { border-top: 1px solid var(--border); background: var(--deep2); }
+  .calc-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; margin-top: 3rem; }
+  .calc-form { display: flex; flex-direction: column; gap: 1.5rem; }
+  .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+  .form-label { font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted); }
+  .form-select { background: var(--panel); border: 1px solid var(--border); color: #fff; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; padding: 0.75rem 1rem; appearance: none; cursor: pointer; transition: border-color 0.3s; width: 100%; }
+  .form-select:focus { outline: none; border-color: var(--gold); }
+  .checkbox-item { background: var(--panel); border: 1px solid var(--border); padding: 0.75rem 1rem; display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: border-color 0.3s; margin-bottom: 0.5rem; user-select: none; }
+  .checkbox-item:hover { border-color: rgba(201,168,76,0.5); }
+  .checkbox-item.checked { border-color: var(--gold); background: rgba(201,168,76,0.05); }
+  .custom-check { width: 16px; height: 16px; border: 1px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: background 0.2s, border-color 0.2s; }
+  .checked .custom-check { background: var(--gold); border-color: var(--gold); }
+  .custom-check::after { content: '✓'; font-size: 10px; color: var(--deep); display: none; }
+  .checked .custom-check::after { display: block; }
+  .checkbox-label { font-size: 0.9rem; }
+  .checkbox-addon-price { margin-left: auto; font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: var(--gold-light); }
+  .calc-result { background: var(--panel); border: 1px solid var(--border); padding: 2.5rem; position: sticky; top: 6rem; }
+  .result-label { font-size: 0.6rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+  .result-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 300; color: var(--gold-light); margin-bottom: 2rem; }
+  .result-breakdown { border-top: 1px solid var(--border); padding-top: 1.5rem; margin-bottom: 1.5rem; }
+  .result-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; font-size: 0.85rem; color: var(--muted); border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .result-row .val { color: #fff; font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; }
+  .result-total { display: flex; justify-content: space-between; align-items: baseline; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+  .total-label { font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--muted); }
+  .total-amount { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 300; color: var(--gold-light); }
+
+  #contact { border-top: 1px solid var(--border); }
+  .contact-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; margin-top: 3rem; }
+  .contact-text { font-size: 0.95rem; color: var(--muted); line-height: 1.8; }
+  .contact-text p { margin-bottom: 1.5rem; }
+  .contact-form { display: flex; flex-direction: column; gap: 1rem; }
+  .contact-input { background: var(--panel); border: 1px solid var(--border); color: #fff; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; padding: 0.85rem 1rem; width: 100%; transition: border-color 0.3s; }
+  .contact-input:focus { outline: none; border-color: var(--gold); }
+  .contact-input::placeholder { color: rgba(255,255,255,0.25); }
+  textarea.contact-input { resize: vertical; min-height: 120px; }
+
+  footer { border-top: 1px solid var(--border); padding: 2.5rem 4rem; display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 1; flex-wrap: wrap; gap: 1.5rem; }
+  .footer-logo { font-family: 'Syncopate', sans-serif; font-size: 0.7rem; letter-spacing: 0.2em; color: var(--gold-light); }
+  .footer-ig { display: flex; align-items: center; gap: 0.5rem; color: var(--muted); font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; text-decoration: none; transition: color 0.3s; }
+  .footer-ig:hover { color: var(--gold-light); }
+  .footer-copy { font-size: 0.7rem; color: var(--muted); }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes scrollPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  @media (max-width: 900px) {
+    nav { padding: 1.5rem 2rem; } .nav-links { display: none; }
+    .section-inner { padding: 4rem 2rem; }
+    .features-grid, .packages-grid, .addons-row, .calc-layout, .contact-layout { grid-template-columns: 1fr; }
+    .work-grid { grid-template-columns: repeat(2, 1fr); }
+    footer { padding: 2rem; flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+<canvas id="stars-canvas"></canvas>
+
+<nav>
+  <div class="nav-logo">Constellation<span>Automotive Group</span></div>
+  <div class="nav-links">
+    <a href="#features">Experience</a>
+    <a href="#our-work">Our Work</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#calculator">Estimate</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <div class="nav-right">
+    <a href="https://www.instagram.com/constellationautomotive/" target="_blank" class="nav-ig-btn" title="Instagram">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"/></svg>
+    </a>
+    <a href="#contact" class="nav-cta">Book a Consultation</a>
+  </div>
+</nav>
+
+<section id="hero">
+  <p class="hero-eyebrow">Constellation Automotive Group</p>
+  <h1 class="hero-title" id="hero-title-el">Your Car,<br><em>The Night Sky.</em></h1>
+  <p class="hero-sub" id="hero-sub-el">Premium fiber optic starlight headliner installations that transform your vehicle into a moving constellation.</p>
+  <div class="hero-btns">
+    <a href="#our-work" class="btn-primary">View Our Work</a>
+    <a href="#calculator" class="btn-outline">Get a Quote</a>
+  </div>
+  <div class="hero-scroll"><div class="scroll-line"></div><span>Discover</span></div>
+</section>
+
+<section id="features">
+  <div class="section-inner">
+    <div class="section-label">The Experience</div>
+    <h2 class="section-title">Crafted for Those Who<br><em>Demand the Extraordinary</em></h2>
+    <div class="features-grid">
+      <div class="feature-card">
+        <svg class="feature-icon" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="3" fill="#C9A84C"/><circle cx="12" cy="14" r="1.5" fill="#E8CF8A" opacity="0.7"/><circle cx="36" cy="10" r="1" fill="#E8CF8A" opacity="0.5"/><circle cx="40" cy="30" r="1.5" fill="#E8CF8A" opacity="0.6"/><circle cx="8" cy="34" r="1" fill="#E8CF8A" opacity="0.5"/><circle cx="20" cy="8" r="1" fill="#E8CF8A" opacity="0.4"/><circle cx="34" cy="38" r="2" fill="#C9A84C" opacity="0.6"/><line x1="24" y1="24" x2="12" y2="14" stroke="#C9A84C" stroke-width="0.5" opacity="0.3"/><line x1="12" y1="14" x2="20" y2="8" stroke="#C9A84C" stroke-width="0.5" opacity="0.3"/><line x1="24" y1="24" x2="36" y2="10" stroke="#C9A84C" stroke-width="0.5" opacity="0.3"/></svg>
+        <div class="feature-title">Fiber Optic Precision</div>
+        <p class="feature-desc">Every strand of our premium PMMA fiber optic cable is hand-placed with micrometer accuracy, creating a sky that rivals the real thing.</p>
+      </div>
+      <div class="feature-card">
+        <svg class="feature-icon" viewBox="0 0 48 48" fill="none"><path d="M24 4 L28 18 L42 18 L30 28 L34 42 L24 33 L14 42 L18 28 L6 18 L20 18 Z" stroke="#C9A84C" stroke-width="1" opacity="0.6"/><path d="M24 10 L26.5 18 L34 18 L28 23 L30 31 L24 27 L18 31 L20 23 L14 18 L21.5 18 Z" fill="#C9A84C" opacity="0.2"/></svg>
+        <div class="feature-title">Custom Constellations</div>
+        <p class="feature-desc">From initials to star maps of meaningful nights — we design bespoke shapes and names woven directly into your headliner.</p>
+      </div>
+      <div class="feature-card">
+        <svg class="feature-icon" viewBox="0 0 48 48" fill="none"><path d="M8 24 Q20 16 32 24 Q40 20 44 14" stroke="#C9A84C" stroke-width="1.5" fill="none" stroke-linecap="round"/><circle cx="44" cy="14" r="2" fill="#C9A84C"/><circle cx="40" cy="12" r="1" fill="#E8CF8A" opacity="0.5"/></svg>
+        <div class="feature-title">Meteor Streak Effect</div>
+        <p class="feature-desc">Dynamic shooting stars cascade across your headliner at programmed intervals — a breathtaking effect that never grows old.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="our-work">
+  <div class="section-inner">
+    <div class="work-top">
+      <div class="work-top-left">
+        <div class="section-label">Our Work</div>
+        <h2 class="section-title">Every Installation,<br><em>A Masterpiece</em></h2>
+        <p class="work-intro" id="work-intro-text">Explore our portfolio of completed starlight headliner installations — from luxury sedans to exotic supercars.</p>
+      </div>
+      <a href="https://www.instagram.com/constellationautomotive/" target="_blank" class="ig-pill">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"/></svg>
+        @constellationautomotive
+      </a>
+    </div>
+    <div class="work-grid" id="work-grid"></div>
+    <div class="work-footer">
+      <a href="https://www.instagram.com/constellationautomotive/" target="_blank" class="btn-outline">See More on Instagram</a>
+    </div>
+  </div>
+</section>
+
+<div id="lightbox">
+  <button id="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightbox-img" src="" alt="">
+  <div id="lb-caption"></div>
+</div>
+
+<section id="pricing">
+  <div class="section-inner">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">Choose Your<br><em>Universe</em></h2>
+    <p class="pricing-intro">All packages include professional installation, premium PMMA fiber optic cables, LED illuminator unit, and lifetime support.</p>
+    <div class="packages-grid">
+      <div class="package-card">
+        <div class="pkg-stars">500</div><div class="pkg-label">Starlight Points</div>
+        <div class="pkg-price">$450</div><div class="pkg-per">0.9¢ per star · base package</div>
+        <ul class="pkg-features"><li>500 premium fiber optic points</li><li>Single color illumination</li><li>Professional installation</li><li>LED illuminator unit included</li><li>Lifetime support</li></ul>
+        <a href="#calculator" class="btn-outline" style="text-align:center;">Select Package</a>
+      </div>
+      <div class="package-card featured">
+        <div class="featured-badge">Most Popular</div>
+        <div class="pkg-stars">1000</div><div class="pkg-label">Starlight Points</div>
+        <div class="pkg-price">$900</div><div class="pkg-per">0.9¢ per star · full sky experience</div>
+        <ul class="pkg-features"><li>1,000 premium fiber optic points</li><li>RGB color options</li><li>Professional installation</li><li>LED illuminator unit included</li><li>Lifetime support</li></ul>
+        <a href="#calculator" class="btn-primary" style="text-align:center;">Select Package</a>
+      </div>
+      <div class="package-card">
+        <div class="pkg-stars">2000</div><div class="pkg-label">Starlight Points</div>
+        <div class="pkg-price">$1,800</div><div class="pkg-per">0.9¢ per star · milky way density</div>
+        <ul class="pkg-features"><li>2,000 premium fiber optic points</li><li>Full RGB spectrum control</li><li>Professional installation</li><li>Dual LED illuminator units</li><li>Priority lifetime support</li></ul>
+        <a href="#calculator" class="btn-outline" style="text-align:center;">Select Package</a>
+      </div>
+    </div>
+    <div class="section-label" style="margin-top:4rem;">Add-ons</div>
+    <div class="addons-row">
+      <div class="addon-card">
+        <div class="addon-icon-wrap"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 2L14.5 9H22L16 13.5L18.5 20.5L12 16L5.5 20.5L8 13.5L2 9H9.5L12 2Z" stroke="#C9A84C" stroke-width="1.2" fill="none"/></svg></div>
+        <div><div class="addon-title">Custom Shape / Name</div><div class="addon-price">+$200</div><p class="addon-desc">Personalize your headliner with a custom constellation shape, initial, name, or logo hand-designed by our team.</p></div>
+      </div>
+      <div class="addon-card">
+        <div class="addon-icon-wrap"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 12 Q8 7 14 12 Q18 9 22 5" stroke="#C9A84C" stroke-width="1.2" fill="none" stroke-linecap="round"/><circle cx="22" cy="5" r="1.2" fill="#C9A84C"/></svg></div>
+        <div><div class="addon-title">Meteor Streak Effect</div><div class="addon-price">+$100</div><p class="addon-desc">Add dynamic shooting stars that cascade across your headliner in programmed intervals for a truly living night sky.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="calculator">
+  <div class="section-inner">
+    <div class="section-label">Price Estimator</div>
+    <h2 class="section-title">Build Your<br><em>Perfect Package</em></h2>
+    <div class="calc-layout">
+      <div class="calc-form">
+        <div class="form-group">
+          <label class="form-label">Star Count Package</label>
+          <select class="form-select" id="pkg-select">
+            <option value="450">500 Stars — $450</option>
+            <option value="900" selected>1,000 Stars — $900</option>
+            <option value="1800">2,000 Stars — $1,800</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Optional Add-ons</label>
+          <div class="checkbox-item" id="addon-custom" onclick="toggleAddon('addon-custom',200)">
+            <div class="custom-check"></div><span class="checkbox-label">Custom Shape / Name</span><span class="checkbox-addon-price">+$200</span>
+          </div>
+          <div class="checkbox-item" id="addon-meteor" onclick="toggleAddon('addon-meteor',100)">
+            <div class="custom-check"></div><span class="checkbox-label">Meteor Streak Effect</span><span class="checkbox-addon-price">+$100</span>
+          </div>
+        </div>
+      </div>
+      <div class="calc-result">
+        <div class="result-label">Your Estimate</div>
+        <div class="result-title">Constellation Automotive Group</div>
+        <div class="result-breakdown">
+          <div class="result-row"><span>Star Package</span><span class="val" id="r-pkg">$900</span></div>
+          <div class="result-row" id="r-custom-row" style="display:none;"><span>Custom Shape / Name</span><span class="val">$200</span></div>
+          <div class="result-row" id="r-meteor-row" style="display:none;"><span>Meteor Streak Effect</span><span class="val">$100</span></div>
+        </div>
+        <div class="result-total">
+          <span class="total-label">Total Investment</span>
+          <span class="total-amount" id="r-total">$900</span>
+        </div>
+        <div style="margin-top:2rem;"><a href="#contact" class="btn-primary" style="display:block;text-align:center;">Book This Package</a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="section-inner">
+    <div class="section-label">Get in Touch</div>
+    <div class="contact-layout">
+      <div>
+        <h2 class="section-title">Ready to Touch<br><em>the Stars?</em></h2>
+        <div class="gold-divider"></div>
+        <div class="contact-text">
+          <p id="contact-text-el">Book a free consultation with our team. We'll walk you through package options, discuss your vision, and schedule your installation at your convenience.</p>
+          <p>Every installation is backed by our lifetime support guarantee. If a fiber ever dims, we'll be there.</p>
+        </div>
+      </div>
+      <form class="contact-form" onsubmit="submitForm(event)">
+        <input class="contact-input" type="text" placeholder="Full Name" required>
+        <input class="contact-input" type="email" placeholder="Email Address" required>
+        <input class="contact-input" type="tel" placeholder="Phone Number">
+        <input class="contact-input" type="text" placeholder="Vehicle (Year, Make, Model)">
+        <textarea class="contact-input" placeholder="Tell us about your vision..."></textarea>
+        <button type="submit" class="btn-primary" style="width:100%;padding:1.1rem;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;border:none;">Request Consultation</button>
+        <p id="form-success" style="display:none;text-align:center;color:#C9A84C;font-size:0.8rem;letter-spacing:0.1em;">✦ Message sent. We'll reach out within 24 hours.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">Constellation Automotive Group</div>
+  <a href="https://www.instagram.com/constellationautomotive/" target="_blank" class="footer-ig">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.8" fill="currentColor" stroke="none"/></svg>
+    @constellationautomotive
+  </a>
+  <div class="footer-copy">© 2025 Constellation Automotive Group. Premium Starlight Headliners.</div>
+</footer>
+
+<script>
+const canvas=document.getElementById('stars-canvas'),ctx=canvas.getContext('2d');
+let stars=[],meteors=[],W,H;
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
+function initStars(){stars=[];const n=Math.floor(W*H/5000);for(let i=0;i<n;i++)stars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.2+0.2,alpha:Math.random()*0.6+0.2,speed:Math.random()*0.003+0.001,phase:Math.random()*Math.PI*2});}
+function spawnMeteor(){meteors.push({x:Math.random()*W*0.8,y:Math.random()*H*0.3,vx:4+Math.random()*3,vy:2+Math.random()*2,alpha:1,life:0});}
+function drawFrame(ts){
+  ctx.clearRect(0,0,W,H);
+  stars.forEach(s=>{const a=s.alpha*(0.7+0.3*Math.sin(ts*s.speed+s.phase));ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);ctx.fillStyle=`rgba(232,207,138,${a})`;ctx.fill();});
+  meteors=meteors.filter(m=>m.alpha>0.01);
+  meteors.forEach(m=>{m.x+=m.vx;m.y+=m.vy;m.life++;m.alpha=Math.max(0,1-m.life/60);const g=ctx.createLinearGradient(m.x,m.y,m.x-m.vx*12,m.y-m.vy*12);g.addColorStop(0,`rgba(232,207,138,${m.alpha})`);g.addColorStop(1,'rgba(232,207,138,0)');ctx.beginPath();ctx.moveTo(m.x,m.y);ctx.lineTo(m.x-m.vx*12,m.y-m.vy*12);ctx.strokeStyle=g;ctx.lineWidth=1.5;ctx.stroke();});
+  requestAnimationFrame(drawFrame);
+}
+resize();initStars();window.addEventListener('resize',()=>{resize();initStars();});
+setInterval(spawnMeteor,4000);requestAnimationFrame(drawFrame);
+
+const addonState={'addon-custom':false,'addon-meteor':false};
+function toggleAddon(id){addonState[id]=!addonState[id];document.getElementById(id).classList.toggle('checked',addonState[id]);updateTotal();}
+document.getElementById('pkg-select').addEventListener('change',updateTotal);
+function updateTotal(){const p=parseInt(document.getElementById('pkg-select').value);document.getElementById('r-pkg').textContent='$'+p.toLocaleString();const sc=addonState['addon-custom'],sm=addonState['addon-meteor'];document.getElementById('r-custom-row').style.display=sc?'':'none';document.getElementById('r-meteor-row').style.display=sm?'':'none';document.getElementById('r-total').textContent='$'+(p+(sc?200:0)+(sm?100:0)).toLocaleString();}
+function submitForm(e){e.preventDefault();document.getElementById('form-success').style.display='block';e.target.reset();}
+
+function openLightbox(src,cap){document.getElementById('lightbox-img').src=src;document.getElementById('lb-caption').textContent=cap||'';document.getElementById('lightbox').classList.add('open');}
+function closeLightbox(){document.getElementById('lightbox').classList.remove('open');document.getElementById('lightbox-img').src='';}
+document.getElementById('lightbox').addEventListener('click',function(e){if(e.target===this)closeLightbox();});
+
+const STORAGE_KEY='cag_site_data';
+function getSiteData(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||{};}catch(e){return {};}}
+function renderWorkGrid(){
+  const data=getSiteData();const photos=data.photos||[];const grid=document.getElementById('work-grid');grid.innerHTML='';
+  if(photos.length===0){for(let i=0;i<6;i++){const d=document.createElement('div');d.className='work-item';d.innerHTML='<div class="work-placeholder"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.4"><circle cx="12" cy="12" r="3"/><circle cx="5" cy="6" r="1"/><circle cx="19" cy="4" r="0.7"/><circle cx="20" cy="18" r="1"/><circle cx="4" cy="18" r="0.7"/></svg>Coming Soon</div>';grid.appendChild(d);}}
+  else{photos.forEach((p,i)=>{const d=document.createElement('div');d.className='work-item';d.onclick=()=>openLightbox(p.src,p.title+(p.vehicle?' · '+p.vehicle:''));d.innerHTML=`<img src="${p.src}" alt="${p.title||'Installation '+(i+1)}" loading="lazy"><div class="work-overlay"><div class="work-overlay-title">${p.title||''}</div><div class="work-overlay-sub">${p.vehicle||''}</div></div>`;grid.appendChild(d);});}
+  if(data.workIntro)document.getElementById('work-intro-text').textContent=data.workIntro;
+  if(data.heroSub)document.getElementById('hero-sub-el').textContent=data.heroSub;
+  if(data.contactText)document.getElementById('contact-text-el').textContent=data.contactText;
+}
+renderWorkGrid();
+</script>
+</body>
+</html>

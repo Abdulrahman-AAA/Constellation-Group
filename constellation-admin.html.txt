@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Constellation Automotive Group</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Syncopate:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --gold:#C9A84C;--gold-light:#E8CF8A;--gold-dark:#8B6914;
+  --deep:#05050F;--deep2:#0A0A1A;--deep3:#0F0F22;--panel:#0D0D1F;--panel2:#111124;
+  --muted:rgba(255,255,255,0.4);--border:rgba(201,168,76,0.18);
+  --green:#2ecc71;--red:#e74c3c;
+}
+body{background:var(--deep2);color:#fff;font-family:'DM Sans',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;}
+#login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--deep);}
+.login-wrap{width:360px;padding:3rem 2.5rem;border:1px solid var(--border);background:var(--panel);text-align:center;}
+.login-star{font-size:2rem;margin-bottom:1.5rem;opacity:0.6;}
+.login-logo{font-family:'Syncopate',sans-serif;font-size:0.65rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold-light);margin-bottom:0.4rem;}
+.login-sub{font-size:0.6rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted);margin-bottom:2.5rem;}
+.login-input{width:100%;background:var(--deep);border:1px solid var(--border);color:#fff;font-family:'DM Sans',sans-serif;font-size:0.9rem;padding:0.8rem 1rem;margin-bottom:0.9rem;transition:border-color 0.3s;}
+.login-input:focus{outline:none;border-color:var(--gold);}
+.login-input::placeholder{color:rgba(255,255,255,0.2);}
+.login-btn{width:100%;padding:0.9rem;background:var(--gold);color:var(--deep);font-family:'DM Sans',sans-serif;font-weight:500;font-size:0.65rem;letter-spacing:0.25em;text-transform:uppercase;border:none;cursor:pointer;transition:background 0.3s;}
+.login-btn:hover{background:var(--gold-light);}
+.login-err{color:var(--red);font-size:0.78rem;margin-top:0.75rem;display:none;}
+#admin-screen{display:none;min-height:100vh;flex-direction:column;}
+.adm-header{background:var(--deep);border-bottom:1px solid var(--border);padding:0 2rem;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.adm-logo{font-family:'Syncopate',sans-serif;font-size:0.62rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold-light);}
+.adm-logo small{display:block;font-size:0.48rem;letter-spacing:0.35em;color:var(--muted);margin-top:2px;}
+.adm-header-right{display:flex;align-items:center;gap:0.75rem;}
+.hdr-btn{font-family:'DM Sans',sans-serif;font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.45rem 1rem;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;text-decoration:none;transition:border-color 0.2s,color 0.2s;display:inline-flex;align-items:center;gap:0.4rem;}
+.hdr-btn:hover{border-color:var(--gold);color:var(--gold-light);}
+.hdr-btn.gold{background:var(--gold);color:var(--deep);border-color:var(--gold);font-weight:500;}
+.hdr-btn.gold:hover{background:var(--gold-light);}
+.adm-body{display:flex;flex:1;}
+.sidebar{width:200px;flex-shrink:0;background:var(--deep);border-right:1px solid var(--border);padding:1.5rem 0;position:sticky;top:58px;height:calc(100vh - 58px);overflow-y:auto;}
+.nav-group-label{font-size:0.5rem;letter-spacing:0.4em;text-transform:uppercase;color:rgba(255,255,255,0.2);padding:0.5rem 1.5rem 0.4rem;margin-top:0.5rem;}
+.nav-item{display:flex;align-items:center;gap:0.65rem;padding:0.7rem 1.5rem;font-size:0.7rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;transition:color 0.2s,background 0.2s,border-color 0.2s;border-left:2px solid transparent;user-select:none;}
+.nav-item svg{width:15px;height:15px;flex-shrink:0;opacity:0.7;}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,0.03);}
+.nav-item.active{color:var(--gold-light);border-left-color:var(--gold);background:rgba(201,168,76,0.06);}
+.nav-item.active svg{opacity:1;}
+.sidebar-divider{height:1px;background:var(--border);margin:1rem 1.5rem;}
+.adm-main{flex:1;padding:2.5rem;overflow-y:auto;max-width:1100px;}
+.tab-pane{display:none;animation:fadeIn 0.25s ease;}
+.tab-pane.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.pane-header{margin-bottom:2.5rem;}
+.pane-eyebrow{font-size:0.55rem;letter-spacing:0.45em;text-transform:uppercase;color:var(--gold);margin-bottom:0.5rem;}
+.pane-title{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:300;line-height:1.1;}
+.pane-title em{font-style:italic;color:var(--gold-light);}
+.pane-desc{font-size:0.85rem;color:var(--muted);margin-top:0.5rem;}
+.card{background:var(--panel);border:1px solid var(--border);padding:1.75rem;margin-bottom:1.25rem;}
+.card-head{font-family:'Syncopate',sans-serif;font-size:0.55rem;letter-spacing:0.25em;text-transform:uppercase;color:var(--gold);margin-bottom:1.5rem;display:flex;align-items:center;gap:0.75rem;}
+.card-head::after{content:'';flex:1;height:1px;background:var(--border);}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;}
+.stat-card{background:var(--panel);border:1px solid var(--border);padding:1.25rem 1.5rem;}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:300;color:var(--gold-light);line-height:1;margin-bottom:0.2rem;}
+.stat-lbl{font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);}
+.field{margin-bottom:1.25rem;}
+.field-label{font-size:0.6rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:0.45rem;}
+.f-input{width:100%;background:var(--deep);border:1px solid var(--border);color:#fff;font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:0.7rem 0.9rem;transition:border-color 0.3s;}
+.f-input:focus{outline:none;border-color:var(--gold);}
+.f-input::placeholder{color:rgba(255,255,255,0.18);}
+.f-textarea{width:100%;background:var(--deep);border:1px solid var(--border);color:#fff;font-family:'DM Sans',sans-serif;font-size:0.88rem;padding:0.7rem 0.9rem;resize:vertical;min-height:80px;transition:border-color 0.3s;}
+.f-textarea:focus{outline:none;border-color:var(--gold);}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.btn{font-family:'DM Sans',sans-serif;font-size:0.62rem;letter-spacing:0.2em;text-transform:uppercase;padding:0.6rem 1.4rem;border:none;cursor:pointer;transition:background 0.2s,transform 0.1s,border-color 0.2s,color 0.2s;display:inline-flex;align-items:center;gap:0.4rem;}
+.btn:active{transform:scale(0.97);}
+.btn-gold{background:var(--gold);color:var(--deep);font-weight:500;}
+.btn-gold:hover{background:var(--gold-light);}
+.btn-outline{background:transparent;color:var(--gold-light);border:1px solid var(--border);}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid transparent;}
+.btn-ghost:hover{color:#fff;}
+.btn-danger{background:transparent;color:var(--red);border:1px solid rgba(231,76,60,0.25);}
+.btn-danger:hover{background:rgba(231,76,60,0.08);}
+.btn-sm{padding:0.38rem 0.8rem;font-size:0.58rem;}
+.btn-xs{padding:0.28rem 0.6rem;font-size:0.55rem;}
+.save-bar{display:flex;align-items:center;justify-content:space-between;padding-top:1.25rem;border-top:1px solid var(--border);margin-top:1.5rem;}
+.save-bar-note{font-size:0.72rem;color:var(--muted);}
+.upload-zone{border:1px dashed rgba(201,168,76,0.3);padding:3rem 2rem;text-align:center;cursor:pointer;transition:border-color 0.3s,background 0.3s;margin-bottom:1.5rem;position:relative;}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--gold);background:rgba(201,168,76,0.04);}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upload-icon{font-size:2rem;margin-bottom:0.75rem;opacity:0.35;}
+.upload-title{font-size:0.8rem;color:var(--muted);margin-bottom:0.3rem;}
+.upload-hint{font-size:0.7rem;color:rgba(255,255,255,0.18);}
+.photos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;}
+.photo-card{background:var(--panel2);border:1px solid var(--border);overflow:hidden;position:relative;transition:border-color 0.3s;}
+.photo-card:hover{border-color:rgba(201,168,76,0.4);}
+.photo-thumb{width:100%;aspect-ratio:1;object-fit:cover;display:block;}
+.photo-body{padding:0.75rem;}
+.photo-body input{width:100%;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,0.08);color:#fff;font-family:'DM Sans',sans-serif;font-size:0.78rem;padding:0.3rem 0;margin-bottom:0.4rem;transition:border-color 0.2s;}
+.photo-body input:focus{outline:none;border-bottom-color:var(--gold);}
+.photo-body input::placeholder{color:rgba(255,255,255,0.2);}
+.photo-actions{display:flex;gap:0.4rem;padding:0.5rem 0.75rem 0.75rem;}
+.drag-handle{cursor:grab;color:var(--muted);font-size:0.9rem;display:flex;align-items:center;padding:0 0.3rem;}
+.photo-del{margin-left:auto;}
+.photo-badge{position:absolute;top:0.5rem;left:0.5rem;background:rgba(5,5,15,0.8);border:1px solid var(--border);font-size:0.55rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);padding:0.2rem 0.5rem;}
+.empty-photos{text-align:center;padding:4rem 2rem;color:rgba(255,255,255,0.15);}
+.empty-photos svg{width:56px;height:56px;margin:0 auto 1.25rem;display:block;opacity:0.2;}
+.empty-photos p{font-size:0.85rem;}
+.pkg-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;}
+.pkg-edit-card{background:var(--panel2);border:1px solid var(--border);padding:1.25rem;}
+.pkg-edit-card.featured-card{border-color:rgba(201,168,76,0.5);}
+.pkg-name{font-family:'Syncopate',sans-serif;font-size:0.55rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;}
+.price-display{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;color:var(--gold-light);margin:0.5rem 0;}
+.price-note{font-size:0.7rem;color:var(--muted);}
+.addon-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.addon-edit-card{background:var(--panel2);border:1px solid var(--border);padding:1.25rem;}
+#toast{position:fixed;bottom:2rem;right:2rem;z-index:999;background:var(--panel);border:1px solid var(--border);padding:0.9rem 1.4rem;font-size:0.8rem;display:flex;align-items:center;gap:0.6rem;opacity:0;transform:translateY(8px);transition:opacity 0.3s,transform 0.3s;pointer-events:none;min-width:220px;}
+#toast.show{opacity:1;transform:translateY(0);}
+#toast.ok{border-color:rgba(46,204,113,0.4);}
+#toast.ok .t-dot{color:var(--green);}
+#toast.err{border-color:rgba(231,76,60,0.4);}
+#toast.err .t-dot{color:var(--red);}
+.t-dot{font-size:1.1rem;}
+@media(max-width:900px){
+  .sidebar{width:160px;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .pkg-grid{grid-template-columns:1fr;}
+  .addon-edit-grid{grid-template-columns:1fr;}
+  .f-row{grid-template-columns:1fr;}
+}
+@media(max-width:680px){
+  .adm-body{flex-direction:column;}
+  .sidebar{width:100%;height:auto;position:static;display:flex;flex-wrap:wrap;padding:0.5rem;}
+  .nav-item{flex:0 0 auto;border-left:none;border-bottom:2px solid transparent;padding:0.5rem 0.75rem;}
+  .nav-item.active{border-left:none;border-bottom-color:var(--gold);}
+  .adm-main{padding:1.5rem;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .photos-grid{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-star">✦</div>
+    <div class="login-logo">Constellation</div>
+    <div class="login-sub">Admin Portal</div>
+    <input class="login-input" id="lu" type="text" placeholder="Username" autocomplete="username">
+    <input class="login-input" id="lp" type="password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-err" id="lerr">Incorrect credentials. Please try again.</div>
+  </div>
+</div>
+
+<div id="admin-screen">
+  <div class="adm-header">
+    <div class="adm-logo">Admin Panel<small>Constellation Automotive Group</small></div>
+    <div class="adm-header-right">
+      <a href="index.html" target="_blank" class="hdr-btn">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Preview Site
+      </a>
+      <button class="hdr-btn gold" onclick="saveAll()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Save All Changes
+      </button>
+      <button class="hdr-btn" onclick="doLogout()">Sign Out</button>
+    </div>
+  </div>
+
+  <div class="adm-body">
+    <div class="sidebar">
+      <div class="nav-group-label">Overview</div>
+      <div class="nav-item active" onclick="showTab('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="nav-group-label">Content</div>
+      <div class="nav-item" onclick="showTab('photos')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+        Our Work
+      </div>
+      <div class="nav-item" onclick="showTab('text')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        Site Text
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="nav-group-label">Business</div>
+      <div class="nav-item" onclick="showTab('pricing')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        Pricing
+      </div>
+      <div class="nav-item" onclick="showTab('contact')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        Contact Info
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="nav-group-label">System</div>
+      <div class="nav-item" onclick="showTab('settings')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Settings
+      </div>
+    </div>
+
+    <div class="adm-main">
+
+      <div class="tab-pane active" id="tab-dashboard">
+        <div class="pane-header">
+          <div class="pane-eyebrow">Overview</div>
+          <h1 class="pane-title">Welcome back, <em>Admin</em></h1>
+          <p class="pane-desc">Manage your website content, photos, and business info from here.</p>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-val" id="stat-photos">0</div><div class="stat-lbl">Portfolio Photos</div></div>
+          <div class="stat-card"><div class="stat-val">3</div><div class="stat-lbl">Packages Listed</div></div>
+          <div class="stat-card"><div class="stat-val">2</div><div class="stat-lbl">Add-ons Available</div></div>
+          <div class="stat-card"><div class="stat-val" id="stat-saved">—</div><div class="stat-lbl">Last Saved</div></div>
+        </div>
+        <div class="card">
+          <div class="card-head">Quick Actions</div>
+          <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+            <button class="btn btn-gold" onclick="showTab('photos')">+ Add Photos</button>
+            <button class="btn btn-outline" onclick="showTab('text')">Edit Site Text</button>
+            <button class="btn btn-outline" onclick="showTab('pricing')">Update Pricing</button>
+            <a href="index.html" target="_blank" class="btn btn-ghost">Preview Live Site ↗</a>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">How It Works</div>
+          <div style="font-size:0.85rem;color:var(--muted);line-height:1.9;display:flex;flex-direction:column;gap:0.6rem;">
+            <div><span style="color:var(--gold-light);">① Add Photos</span> — Upload images in "Our Work". They appear in the portfolio grid on your site.</div>
+            <div><span style="color:var(--gold-light);">② Edit Text</span> — Update your hero tagline, portfolio intro, and contact blurb in "Site Text".</div>
+            <div><span style="color:var(--gold-light);">③ Save Changes</span> — Hit "Save All Changes" top right. Changes store locally and reflect on the site instantly.</div>
+            <div><span style="color:var(--gold-light);">④ Preview</span> — Use "Preview Site" to see exactly how visitors see it.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane" id="tab-photos">
+        <div class="pane-header">
+          <div class="pane-eyebrow">Content</div>
+          <h1 class="pane-title">Our Work <em>Photos</em></h1>
+          <p class="pane-desc">Upload installation photos. Add a title and vehicle for each — they show on hover.</p>
+        </div>
+        <div class="upload-zone" id="drop-zone">
+          <input type="file" id="photo-input" accept="image/*" multiple onchange="handleFiles(this.files)">
+          <div class="upload-icon">✦</div>
+          <div class="upload-title">Click to upload photos, or drag & drop here</div>
+          <div class="upload-hint">JPG, PNG, WEBP — multiple files supported</div>
+        </div>
+        <div class="card">
+          <div class="card-head">Portfolio Photos <span id="photo-count-badge" style="color:var(--muted);font-family:'DM Sans',sans-serif;font-weight:300;font-size:0.75rem;letter-spacing:0;text-transform:none;margin-left:0.5rem;"></span></div>
+          <div class="photos-grid" id="photos-grid">
+            <div class="empty-photos" id="empty-msg" style="grid-column:1/-1;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              <p>No photos yet — upload some above to get started.</p>
+            </div>
+          </div>
+          <div class="save-bar">
+            <span class="save-bar-note">Drag cards to reorder. Changes save to your browser.</span>
+            <button class="btn btn-gold" onclick="saveAll()">Save Changes</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-pane" id="tab-text">
+        <div class="pane-header">
+          <div class="pane-eyebrow">Content</div>
+          <h1 class="pane-title">Site <em>Text</em></h1>
+          <p class="pane-desc">Edit the key text blocks that appear on your website.</p>
+        </div>
+        <div class="card">
+          <div class="card-head">Hero Section</div>
+          <div class="field">
+            <label class="field-label">Hero Tagline</label>
+            <textarea class="f-textarea" id="txt-hero-sub" rows="2" placeholder="Premium fiber optic starlight headliner installations..."></textarea>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">Our Work Section</div>
+          <div class="field">
+            <label class="field-label">Portfolio Intro Text</label>
+            <textarea class="f-textarea" id="txt-work-intro" rows="2" placeholder="Explore our portfolio..."></textarea>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">Contact Section</div>
+          <div class="field">
+            <label class="field-label">Contact Blurb</label>
+            <textarea class="f-textarea" id="txt-contact" rows="3" placeholder="Book a free consultation..."></textarea>
+          </div>
+        </div>
+        <div class="save-bar">
+          <span class="save-bar-note">Changes apply instantly on save.</span>
+          <button class="btn btn-gold" onclick="saveAll()">Save Changes</button>
+        </div>
+      </div>
+
+      <div class="tab-pane" id="tab-pricing">
+        <div class="pane-header">
+          <div class="pane-eyebrow">Business</div>
+          <h1 class="pane-title">Pricing <em>Manager</em></h1>
+          <p class="pane-desc">Update your package prices and add-on fees.</p>
+        </div>
+        <div class="card">
+          <div class="card-head">Star Packages</div>
+          <div class="pkg-grid">
+            <div class="pkg-edit-card">
+              <div class="pkg-name">500 Stars</div>
+              <div class="field"><label class="field-label">Price ($)</label><input class="f-input" id="pkg-500" type="number" value="450" min="0"></div>
+              <div class="price-display" id="disp-500">$450</div><div class="price-note">0.9¢ per star</div>
+            </div>
+            <div class="pkg-edit-card featured-card">
+              <div class="pkg-name">1,000 Stars ✦ Most Popular</div>
+              <div class="field"><label class="field-label">Price ($)</label><input class="f-input" id="pkg-1000" type="number" value="900" min="0"></div>
+              <div class="price-display" id="disp-1000">$900</div><div class="price-note">0.9¢ per star</div>
+            </div>
+            <div class="pkg-edit-card">
+              <div class="pkg-name">2,000 Stars</div>
+              <div class="field"><label class="field-label">Price ($)</label><input class="f-input" id="pkg-2000" type="number" value="1800" min="0"></div>
+              <div class="price-display" id="disp-2000">$1,800</div><div class="price-note">0.9¢ per star</div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">Add-ons</div>
+          <div class="addon-edit-grid">
+            <div class="addon-edit-card">
+              <div class="pkg-name">Custom Shape / Name</div>
+              <div class="field"><label class="field-label">Additional Fee ($)</label><input class="f-input" id="addon-custom-price" type="number" value="200" min="0"></div>
+              <div class="price-display" id="disp-custom">+$200</div>
+            </div>
+            <div class="addon-edit-card">
+              <div class="pkg-name">Meteor Streak Effect</div>
+              <div class="field"><label class="field-label">Additional Fee ($)</label><input class="f-input" id="addon-meteor-price" type="number" value="100" min="0"></div>
+              <div class="price-display" id="disp-meteor">+$100</div>
+            </div>
+          </div>
+        </div>
+        <div class="save-bar">
+          <span class="save-bar-note">Prices update on the main site calculator.</span>
+          <button class="btn btn-gold" onclick="saveAll()">Save Changes</button>
+        </div>
+      </div>
+
+      <div class="tab-pane" id="tab-contact">
+        <div class="pane-header">
+          <div class="pane-eyebrow">Business</div>
+          <h1 class="pane-title">Contact <em>Info</em></h1>
+          <p class="pane-desc">Update your contact details and social media links.</p>
+        </div>
+        <div class="card">
+          <div class="card-head">Contact Details</div>
+          <div class="f-row">
+            <div class="field"><label class="field-label">Business Phone</label><input class="f-input" id="c-phone" type="tel" placeholder="+1 (555) 000-0000"></div>
+            <div class="field"><label class="field-label">Business Email</label><input class="f-input" id="c-email" type="email" placeholder="info@constellationautomotive.com"></div>
+          </div>
+          <div class="f-row">
+            <div class="field"><label class="field-label">City / Service Area</label><input class="f-input" id="c-location" type="text" placeholder="e.g. Toronto, ON"></div>
+            <div class="field"><label class="field-label">Business Hours</label><input class="f-input" id="c-hours" type="text" placeholder="e.g. Mon–Sat, 9am–6pm"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">Social Media</div>
+          <div class="field"><label class="field-label">Instagram URL</label><input class="f-input" id="c-ig" type="url" value="https://www.instagram.com/constellationautomotive/"></div>
+          <div class="field"><label class="field-label">TikTok URL (optional)</label><input class="f-input" id="c-tiktok" type="url" placeholder="https://www.tiktok.com/@..."></div>
+          <div class="field"><label class="field-label">Facebook URL (optional)</label><input class="f-input" id="c-fb" type="url" placeholder="https://www.facebook.com/..."></div>
+        </div>
+        <div class="save-bar">
+          <span class="save-bar-note">Social links update across the whole site.</span>
+          <button class="btn btn-gold" onclick="saveAll()">Save Changes</button>
+        </div>
+      </div>
+
+      <div class="tab-pane" id="tab-settings">
+        <div class="pane-header">
+          <div class="pane-eyebrow">System</div>
+          <h1 class="pane-title">Admin <em>Settings</em></h1>
+          <p class="pane-desc">Manage your admin password and site data.</p>
+        </div>
+        <div class="card">
+          <div class="card-head">Change Password</div>
+          <div style="max-width:400px;">
+            <div class="field"><label class="field-label">Current Password</label><input class="f-input" id="s-cur" type="password" placeholder="Current password"></div>
+            <div class="field"><label class="field-label">New Password</label><input class="f-input" id="s-new" type="password" placeholder="New password"></div>
+            <div class="field"><label class="field-label">Confirm New Password</label><input class="f-input" id="s-conf" type="password" placeholder="Confirm new password"></div>
+            <button class="btn btn-gold" onclick="changePassword()">Update Password</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">Data Management</div>
+          <div style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">Export a backup of all your site data, or clear everything and start fresh.</div>
+          <div style="display:flex;gap:0.75rem;flex-wrap:wrap;">
+            <button class="btn btn-outline" onclick="exportData()">Export Backup (JSON)</button>
+            <button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head">Default Credentials</div>
+          <div style="font-size:0.82rem;color:var(--muted);line-height:1.9;">Default login: <span style="color:var(--gold-light);">admin / constellation2025</span>. Change it above once you're set up.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toast"><span class="t-dot">✦</span><span id="toast-msg">Saved.</span></div>
+
+<script>
+const STORAGE_KEY='cag_site_data';
+const CRED_KEY='cag_admin_creds';
+function defaultCreds(){return{user:'admin',pass:'constellation2025'};}
+function getCreds(){try{return JSON.parse(localStorage.getItem(CRED_KEY))||defaultCreds();}catch(e){return defaultCreds();}}
+function getSiteData(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY))||{};}catch(e){return {};}}
+function saveSiteData(d){localStorage.setItem(STORAGE_KEY,JSON.stringify(d));}
+
+function doLogin(){
+  const u=document.getElementById('lu').value.trim();
+  const p=document.getElementById('lp').value;
+  const c=getCreds();
+  if(u===c.user&&p===c.pass){
+    document.getElementById('login-screen').style.display='none';
+    const as=document.getElementById('admin-screen');
+    as.style.display='flex';as.style.flexDirection='column';
+    loadAllData();
+  } else {
+    document.getElementById('lerr').style.display='block';
+    document.getElementById('lp').value='';
+  }
+}
+document.getElementById('lu').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+function doLogout(){
+  document.getElementById('admin-screen').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('lu').value='';document.getElementById('lp').value='';
+}
+
+function showTab(id){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{
+    if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+id+"'"))n.classList.add('active');
+  });
+}
+
+function v(id,val){const el=document.getElementById(id);if(el)el.value=val;}
+
+function loadAllData(){
+  const d=getSiteData();
+  v('txt-hero-sub',d.heroSub||'Premium fiber optic starlight headliner installations that transform your vehicle into a moving constellation.');
+  v('txt-work-intro',d.workIntro||'Explore our portfolio of completed starlight headliner installations — from luxury sedans to exotic supercars.');
+  v('txt-contact',d.contactText||"Book a free consultation with our team. We'll walk you through package options, discuss your vision, and schedule your installation at your convenience.");
+  v('c-phone',d.phone||'');v('c-email',d.email||'');v('c-location',d.location||'');v('c-hours',d.hours||'');
+  v('c-ig',d.igUrl||'https://www.instagram.com/constellationautomotive/');
+  v('c-tiktok',d.tiktok||'');v('c-fb',d.facebook||'');
+  v('pkg-500',d.pkg500||450);v('pkg-1000',d.pkg1000||900);v('pkg-2000',d.pkg2000||1800);
+  v('addon-custom-price',d.addonCustom||200);v('addon-meteor-price',d.addonMeteor||100);
+  refreshPriceDisplays();
+  renderPhotos(d.photos||[]);
+  updateDashStats(d);
+  if(d.lastSaved)document.getElementById('stat-saved').textContent=new Date(d.lastSaved).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+}
+
+function saveAll(){
+  const d=getSiteData();
+  d.heroSub=document.getElementById('txt-hero-sub').value;
+  d.workIntro=document.getElementById('txt-work-intro').value;
+  d.contactText=document.getElementById('txt-contact').value;
+  d.phone=document.getElementById('c-phone').value;
+  d.email=document.getElementById('c-email').value;
+  d.location=document.getElementById('c-location').value;
+  d.hours=document.getElementById('c-hours').value;
+  d.igUrl=document.getElementById('c-ig').value;
+  d.tiktok=document.getElementById('c-tiktok').value;
+  d.facebook=document.getElementById('c-fb').value;
+  d.pkg500=parseInt(document.getElementById('pkg-500').value)||450;
+  d.pkg1000=parseInt(document.getElementById('pkg-1000').value)||900;
+  d.pkg2000=parseInt(document.getElementById('pkg-2000').value)||1800;
+  d.addonCustom=parseInt(document.getElementById('addon-custom-price').value)||200;
+  d.addonMeteor=parseInt(document.getElementById('addon-meteor-price').value)||100;
+  d.lastSaved=Date.now();
+  saveSiteData(d);
+  refreshPriceDisplays();updateDashStats(d);
+  document.getElementById('stat-saved').textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  showToast('All changes saved ✓','ok');
+}
+
+function refreshPriceDisplays(){
+  const p500=parseInt(document.getElementById('pkg-500').value)||450;
+  const p1000=parseInt(document.getElementById('pkg-1000').value)||900;
+  const p2000=parseInt(document.getElementById('pkg-2000').value)||1800;
+  const pc=parseInt(document.getElementById('addon-custom-price').value)||200;
+  const pm=parseInt(document.getElementById('addon-meteor-price').value)||100;
+  document.getElementById('disp-500').textContent='$'+p500.toLocaleString();
+  document.getElementById('disp-1000').textContent='$'+p1000.toLocaleString();
+  document.getElementById('disp-2000').textContent='$'+p2000.toLocaleString();
+  document.getElementById('disp-custom').textContent='+$'+pc.toLocaleString();
+  document.getElementById('disp-meteor').textContent='+$'+pm.toLocaleString();
+}
+['pkg-500','pkg-1000','pkg-2000','addon-custom-price','addon-meteor-price'].forEach(id=>{
+  document.getElementById(id).addEventListener('input',refreshPriceDisplays);
+});
+
+function updateDashStats(d){
+  const photos=d.photos||[];
+  document.getElementById('stat-photos').textContent=photos.length;
+  const b=document.getElementById('photo-count-badge');
+  if(b)b.textContent=photos.length?photos.length+' photo'+(photos.length===1?'':'s'):'';
+}
+
+function handleFiles(files){
+  const d=getSiteData();d.photos=d.photos||[];
+  let pending=files.length;
+  Array.from(files).forEach(file=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      d.photos.push({src:e.target.result,title:'',vehicle:'',id:Date.now()+Math.random()});
+      pending--;
+      if(pending===0){saveSiteData(d);renderPhotos(d.photos);updateDashStats(d);showToast(files.length+' photo'+(files.length===1?'':'s')+' uploaded','ok');}
+    };
+    r.readAsDataURL(file);
+  });
+}
+
+function renderPhotos(photos){
+  const grid=document.getElementById('photos-grid');
+  const empty=document.getElementById('empty-msg');
+  if(!photos||photos.length===0){grid.innerHTML='';if(empty){empty.style.display='block';grid.appendChild(empty);}return;}
+  if(empty)empty.style.display='none';
+  grid.innerHTML='';
+  photos.forEach((p,i)=>{
+    const card=document.createElement('div');card.className='photo-card';card.dataset.idx=i;card.draggable=true;
+    card.innerHTML=`<div class="photo-badge">#${i+1}</div><img class="photo-thumb" src="${p.src}" alt="Photo ${i+1}"><div class="photo-body"><input type="text" placeholder="Title (e.g. BMW 7 Series)" value="${p.title||''}" oninput="updatePhotoField(${i},'title',this.value)"><input type="text" placeholder="Vehicle (e.g. 2023 Rolls-Royce)" value="${p.vehicle||''}" oninput="updatePhotoField(${i},'vehicle',this.value)"></div><div class="photo-actions"><div class="drag-handle" title="Drag to reorder">⠿</div><button class="btn btn-xs btn-outline" onclick="movePhoto(${i},-1)">↑</button><button class="btn btn-xs btn-outline" onclick="movePhoto(${i},1)">↓</button><button class="btn btn-xs btn-danger photo-del" onclick="deletePhoto(${i})">✕ Remove</button></div>`;
+    grid.appendChild(card);
+  });
+  initDrag();
+}
+
+function updatePhotoField(idx,field,val){const d=getSiteData();if(d.photos&&d.photos[idx])d.photos[idx][field]=val;saveSiteData(d);}
+function deletePhoto(idx){const d=getSiteData();d.photos.splice(idx,1);saveSiteData(d);renderPhotos(d.photos);updateDashStats(d);showToast('Photo removed','ok');}
+function movePhoto(idx,dir){const d=getSiteData();const arr=d.photos;const ni=idx+dir;if(ni<0||ni>=arr.length)return;[arr[idx],arr[ni]]=[arr[ni],arr[idx]];saveSiteData(d);renderPhotos(arr);}
+
+let dragSrc=null;
+function initDrag(){
+  document.querySelectorAll('.photo-card').forEach(card=>{
+    card.addEventListener('dragstart',e=>{dragSrc=card;card.style.opacity='0.4';e.dataTransfer.effectAllowed='move';});
+    card.addEventListener('dragend',()=>{card.style.opacity='1';dragSrc=null;});
+    card.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move';card.style.borderColor='rgba(201,168,76,0.6)';});
+    card.addEventListener('dragleave',()=>{card.style.borderColor='';});
+    card.addEventListener('drop',e=>{
+      e.preventDefault();card.style.borderColor='';
+      if(dragSrc&&dragSrc!==card){
+        const fi=parseInt(dragSrc.dataset.idx),ti=parseInt(card.dataset.idx);
+        const d=getSiteData();const arr=d.photos;const moved=arr.splice(fi,1)[0];arr.splice(ti,0,moved);saveSiteData(d);renderPhotos(arr);
+      }
+    });
+  });
+}
+
+const dz=document.getElementById('drop-zone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>{dz.classList.remove('drag');});
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');if(e.dataTransfer.files.length)handleFiles(e.dataTransfer.files);});
+
+function changePassword(){
+  const cur=document.getElementById('s-cur').value;
+  const nw=document.getElementById('s-new').value;
+  const conf=document.getElementById('s-conf').value;
+  const c=getCreds();
+  if(cur!==c.pass){showToast('Current password incorrect','err');return;}
+  if(!nw){showToast('New password cannot be empty','err');return;}
+  if(nw!==conf){showToast('Passwords do not match','err');return;}
+  c.pass=nw;localStorage.setItem(CRED_KEY,JSON.stringify(c));
+  document.getElementById('s-cur').value='';document.getElementById('s-new').value='';document.getElementById('s-conf').value='';
+  showToast('Password updated','ok');
+}
+
+function exportData(){
+  const d=getSiteData();
+  const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='constellation-backup-'+new Date().toISOString().slice(0,10)+'.json';a.click();
+  showToast('Backup exported','ok');
+}
+
+function clearAllData(){
+  if(!confirm('Delete ALL photos, text, and pricing changes?'))return;
+  localStorage.removeItem(STORAGE_KEY);loadAllData();showToast('All data cleared','ok');
+}
+
+let toastTimer;
+function showToast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.className='show '+(type==='ok'?'ok':'err');
+  document.getElementById('toast-msg').textContent=msg;
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>{t.className='';},3000);
+}
+</script>
+</body>
+</html>
