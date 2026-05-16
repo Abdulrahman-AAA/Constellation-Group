@@ -334,7 +334,7 @@
           <p>Every installation is backed by our lifetime support guarantee. If a fiber ever dims, we'll be there.</p>
         </div>
       </div>
-      <form class="contact-form" onsubmit="submitForm(event)">
+      <<form class="contact-form" action="https://formspree.io/f/xeedjgva" method="POST">>
         <input class="contact-input" type="text" placeholder="Full Name" required>
         <input class="contact-input" type="email" placeholder="Email Address" required>
         <input class="contact-input" type="tel" placeholder="Phone Number">
@@ -376,7 +376,6 @@ const addonState={'addon-custom':false,'addon-meteor':false};
 function toggleAddon(id){addonState[id]=!addonState[id];document.getElementById(id).classList.toggle('checked',addonState[id]);updateTotal();}
 document.getElementById('pkg-select').addEventListener('change',updateTotal);
 function updateTotal(){const p=parseInt(document.getElementById('pkg-select').value);document.getElementById('r-pkg').textContent='$'+p.toLocaleString();const sc=addonState['addon-custom'],sm=addonState['addon-meteor'];document.getElementById('r-custom-row').style.display=sc?'':'none';document.getElementById('r-meteor-row').style.display=sm?'':'none';document.getElementById('r-total').textContent='$'+(p+(sc?200:0)+(sm?100:0)).toLocaleString();}
-function submitForm(e){e.preventDefault();document.getElementById('form-success').style.display='block';e.target.reset();}
 
 function openLightbox(src,cap){document.getElementById('lightbox-img').src=src;document.getElementById('lb-caption').textContent=cap||'';document.getElementById('lightbox').classList.add('open');}
 function closeLightbox(){document.getElementById('lightbox').classList.remove('open');document.getElementById('lightbox-img').src='';}
